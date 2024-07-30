@@ -1,0 +1,48 @@
+# MIT License
+
+# Copyright (c) 2024 DataStax, Inc.
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# **THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.**
+
+image:
+  tag: "1.0.13"
+downloadFlows:
+  flows:
+    - url: https://raw.githubusercontent.com/AI-Phil/langflow-demo-flows/3b1afde4d590c5670e44417322dce580627353b1/flows/PiratePrompt.json
+      endpoint: pirate-prompt
+    - url: https://raw.githubusercontent.com/AI-Phil/langflow-demo-flows/3b1afde4d590c5670e44417322dce580627353b1/flows/BasicMemoryChatbot.json
+      endpoint: basic-memory-chatbot
+    # - url: https://raw.githubusercontent.com/AI-Phil/langflow-demo-flows/3b1afde4d590c5670e44417322dce580627353b1/flows/AstraMemoryChatbot.json
+    #   endpoint: astra-memory-chatbot
+env:
+  - name: ASTRA_DB_API_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: astra-db
+        key: ASTRA_DB_API_ENDPOINT
+  - name: ASTRA_DB_APPLICATION_TOKEN 
+    valueFrom:
+      secretKeyRef:
+        name: astra-db
+        key: ASTRA_DB_APPLICATION_TOKEN
+  - name: OPENAI_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: openai-api-key
+        key: OPENAI_API_KEY

@@ -1,0 +1,165 @@
+<!-- MIT License
+
+Copyright (c) 2024 DataStax, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+**THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.** -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangFlow Chat with Managed Sessions</title>
+    <style>
+        .chat-container {margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;}
+        .chat-header    {font-size: 20px; color: #333; margin-bottom: 10px;}
+        table           {width: 100%; margin-top: 20px; border-collapse: collapse;}
+        th, td          {border: 1px solid #ccc; padding: 8px; text-align: left;}
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="labelInput" placeholder="Label for new session">
+        <button onclick="addSession()">Add Session</button>
+    </div>
+
+    <table id="sessionTable">
+        <tr>
+            <th>Label</th>
+            <th>Session ID</th>
+            <th>Actions</th>
+        </tr>
+    </table>
+
+    <div class="chat-container">
+        <div class="chat-header">Pirate Prompt</div>
+        Session: <select id="pirateChatSelector" onchange="updateSession('langflowPiratePrompt', this.value)"></select>
+        <langflow-chat
+            id="langflowPiratePrompt"
+            window_title="Pirate Prompt"
+            flow_id="pirate-prompt"
+            host_url="http://localhost:7860"
+        ></langflow-chat>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">Basic Memory Chat</div>
+        Session: <select id="basicMemoryChatSelector" onchange="updateSession('langflowBasicMemoryChat', this.value)"></select>
+        <langflow-chat
+            id="langflowBasicMemoryChat"
+            window_title="Basic Memory Chat"
+            flow_id="basic-memory-chatbot"
+            host_url="http://localhost:7860"
+        ></langflow-chat>
+    </div>
+
+    <!-- <div class="chat-container">
+        <div class="chat-header">Astra Memory Chat</div>
+        Session: <select id="astraMemoryChatSelector" onchange="updateSession('langflowAstraMemoryChat', this.value)"></select>
+        <langflow-chat
+            id="langflowAstraMemoryChat"
+            window_title="Astra Memory Chat"
+            flow_id="astra-memory-chatbot"
+            host_url="http://localhost:7860"
+        ></langflow-chat>
+    </div> -->
+
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.5/dist/build/static/js/bundle.min.js"></script>
+    <script>
+        let sessions = JSON.parse(localStorage.getItem('sessions')) || [{'label': 'initial', 'id': uuid.v4()}];
+        localStorage.setItem('sessions', JSON.stringify(sessions)); // Initialize or re-save
+    
+        function populateSessionTable() {
+            const table = document.getElementById('sessionTable');
+            table.innerHTML = '<tr><th>Label</th><th>Session ID</th><th>Actions</th></tr>'; // Reset table
+            sessions.forEach((session, index) => {
+                const row = table.insertRow(-1);
+                row.insertCell(0).innerText = session.label;
+                row.insertCell(1).innerText = session.id;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerText = 'Delete';
+                deleteBtn.onclick = function() { deleteSession(index); };
+                row.insertCell(2).appendChild(deleteBtn);
+            });
+            populateSelectors();
+        }
+    
+        function populateSelectors() {
+            const selectors = [document.getElementById('pirateChatSelector'), document.getElementById('basicMemoryChatSelector'), document.getElementById('astraMemoryChatSelector')];
+            selectors.forEach(selector => {
+                selector.innerHTML = ''; // Clear selector
+                sessions.forEach(session => {
+                    const option = document.createElement('option');
+                    option.value = session.id;
+                    option.textContent = session.label;
+                    selector.appendChild(option);
+                });
+            });
+            if (sessions.length > 0) {
+                updateAllChatsSession(sessions[0].id); // Set all chats to the first session ID
+            }
+        }
+    
+        function addSession() {
+            const label = document.getElementById('labelInput').value;
+            if (label) {
+                sessions.push({'label': label, 'id': uuid.v4()});
+                localStorage.setItem('sessions', JSON.stringify(sessions));
+                populateSessionTable();
+            }
+        }
+    
+        function deleteSession(index) {
+            sessions.splice(index, 1);
+            localStorage.setItem('sessions', JSON.stringify(sessions));
+            populateSessionTable();
+        }
+    
+        function rebuildChatComponent(chatId, sessionId) {
+            const container = document.getElementById(chatId).parentNode; // Get the parent container
+            const oldChat = document.getElementById(chatId);
+            const newChat = document.createElement('langflow-chat'); // Create a new chat component
+            
+            // Set attributes based on old chat attributes or new session ID
+            newChat.id = oldChat.id;
+            newChat.setAttribute('window_title', oldChat.getAttribute('window_title'));
+            newChat.setAttribute('flow_id', oldChat.getAttribute('flow_id'));
+            newChat.setAttribute('host_url', oldChat.getAttribute('host_url'));
+            newChat.setAttribute('session_id', sessionId); // Set the new session ID
+
+            container.replaceChild(newChat, oldChat); // Replace the old chat with the new one
+        }
+
+        function updateSession(chatId, sessionId) {
+            rebuildChatComponent(chatId, sessionId);
+        }
+    
+        function updateAllChatsSession(sessionId) {
+            updateSession('langflowPiratePrompt', sessionId);
+            updateSession('langflowBasicMemoryChat', sessionId);
+            updateSession('langflowAstraMemoryChat', sessionId);
+        }
+    
+        window.onload = function() {
+            populateSessionTable();
+        };
+    </script>
+</body>
+</html>
