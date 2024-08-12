@@ -32,7 +32,7 @@ apply your own Enterprise architucture patterns to it.
 
 ## Langflow Version
 
-This repo is currently based on Langflow v1.0.13; future versions of Langflow may change
+This repo is currently based on Langflow v1.0.14; future versions of Langflow may change
 the advice.
 
 ## Contributions
