@@ -59,7 +59,7 @@ Flow version management is done manually, via Export to a version control system
 ### Packaging 
 
 Langflow does not currently provide a direct means of packaging or importing packages. How to manage
-this is addressed in the Promtion section below.
+this is addressed below.
 
 ## Higher Environments
 
@@ -69,8 +69,9 @@ environment specification includes Flows to be executed from that environment.
 
 **Note:** A few Langflow components use the Langflow Postgres database (such as `Chat Memory`) to persist state 
 across sessions. As mentioned earlier, this repository does not make use of a shared Postgres database – each 
-runtime operates in isolation from other runtimes. You should use components like `Store Message` (with External
-Memory) to manage state explicitly.
+runtime operates in isolation from other runtimes. While these components will function (i.e. memory will be stored 
+locally), in a multi-node environment the behavior will likely be inconsistent. You should use components 
+like `Store Message` (with External Memory) to manage state explicitly.
 
 # Deploying Runtime Backends
 
@@ -84,8 +85,6 @@ Most Flows make use of "Global Variables" to store things like API keys. Within 
 are specified via environment variables. For example, if your flow references a variable named `GOOGLE_API_KEY`, 
 you should set an environment variable named `GOOGLE_API_KEY` with the appropriate value. 
 
-Managing these environment variables is out of scope of this repository.
-
 ## Docker
 
 Langflow maintains a Docker Repository at https://hub.docker.com/r/langflowai/langflow , which is referenced
@@ -96,9 +95,9 @@ COPY flows /app/flows
 ENV LANGFLOW_LOAD_FLOWS_PATH=/app/flows
 ```
 
-Here, files are copied from the local `flows` directory into `/app/flows`, and when the container starts, 
-all of the flows specified in the path pointed to by the `LANGFLOW_LOAD_FLOWS_PATH` are imported into the 
-runtime. 
+During the container build, files are copied from the local `flows` directory into `/app/flows`, and when the 
+container starts, all of the flows specified in the path pointed to by the `LANGFLOW_LOAD_FLOWS_PATH` are 
+imported into the runtime. 
 
 **Note:** If using Docker, you should be sure to specify the `Endpoint Name` on each Flow's Settings page. Flow IDs
 are currently generated and updated during the import process, with the included Flow ID being replaced. 
@@ -111,10 +110,10 @@ To build a Docker image, then, you:
 3. Push the Docker image to your container registry.
 
 And then run the Docker container as normal, forwarding API requests to the container port `7680`. For example, a
-local image:tag `mylangflow:latest` could be run with:
+local image:tag `mylangflow:latest` using environment variables in file `.env` could be run with:
 
 ```bash
-docker run -d -p 7860:7860 mylangflow:latest
+docker run -d --env-file .env -p 7860:7860 mylangflow:latest
 ```
 
 ## Kubernetes (with Helm)

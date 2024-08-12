@@ -24,11 +24,11 @@ image:
   tag: "1.0.14"
 downloadFlows:
   flows:
-    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/7c231fcfbfd2fb52fbec1b78da9c7fc0e31b6e5e/flows/PiratePrompt.json
+    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/97d666e790760cd6207e8be9d4eb3888c33c32dd/flows/PiratePrompt.json
       endpoint: pirate-prompt
-    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/7c231fcfbfd2fb52fbec1b78da9c7fc0e31b6e5e/flows/BasicMemoryChatbot.json
+    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/97d666e790760cd6207e8be9d4eb3888c33c32dd/flows/BasicMemoryChatbot.json
       endpoint: basic-memory-chatbot
-    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/7c231fcfbfd2fb52fbec1b78da9c7fc0e31b6e5e/flows/AstraMemoryChatbot.json
+    - url: https://raw.githubusercontent.com/DataStax-Examples/langflow-demo-prod/97d666e790760cd6207e8be9d4eb3888c33c32dd/flows/AstraMemoryChatbot.json
       endpoint: astra-memory-chatbot
 env:
   - name: ASTRA_DB_API_ENDPOINT
