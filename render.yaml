@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: langflow
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    repo: https://github.com/DataStax-Examples/langflow-demo-prod
+    branch: main
+    healthCheckPath: /health_check
+    autoDeploy: false
+    envVars:
+      - key: LANGFLOW_DATABASE_URL
+        value: sqlite:////app/data/.cache/langflow/langflow.db
+      - key: LANGFLOW_HOST
+        value: 0.0.0.0
+      - key: LANGFLOW_PORT
+        value: 7860
+      - key: PORT
+        value: 7860
+      - key: LANGFLOW_LOG_LEVEL
+        value: INFO
+      - fromGroup: langflow-demo-flow-secrets
+    disk:
+      name: langflow-data
+      mountPath: /app/data

@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.**
 
-FROM langflowai/langflow:1.0.13
+FROM langflowai/langflow:1.0.14
 
 WORKDIR /app
 

@@ -4,8 +4,9 @@ The aim of this repository is to provide some example patterns for bringing Lang
 It currently provides examples for:
 
 1. Docker containers
-2. Kubernetes (with Helm)
-3. [TODO] Terraform
+2. Render (using Docker container)
+3. Kubernetes (with Helm)
+4. [TODO] Terraform
 
 ## Base Principles and Assumptions
 
@@ -116,6 +117,24 @@ local image:tag `mylangflow:latest` using environment variables in file `.env` c
 docker run -d --env-file .env -p 7860:7860 mylangflow:latest
 ```
 
+(An example `.env` file is provided as [`.env.example`](.env.example), supporting the example flows within this repo.).
+
+## Render (using Docker container)
+
+[Render](https://render.com) is a popular service that hosts a number of application services, including Docker-based. 
+
+A blueprint file [render.yaml](render.yaml) is provided within this repository, and makes use of the `Dockerfile` also within this repository.
+
+You first need to create an environment group named `langflow-demo-flow-secrets` (this is referenced in the `render.yaml` file), and within 
+the environment group put the environment variables referenced by your flows. An example `.env` file is provided as [`.env.example`](.env.example), 
+supporting the example flows within this repo.
+
+From here you can simply click this button:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FDataStax-Examples%2Flangflow-demo-prod%2Ftree%2Fmain)
+
+You can find more extensive options and information about configuring the blueprint for things like scaling in the [Render documentation](https://docs.render.com/blueprint-spec).
+
 ## Kubernetes (with Helm)
 
 This asssumes you have a Kubernetes cluster, and have both `kubectl` and `helm` installed and configured. 
@@ -141,7 +160,7 @@ A few points:
   by your flows. For example, if your flow references a variable named `GOOGLE_API_KEY`, you should set an environment 
   variable named `GOOGLE_API_KEY` with the appropriate 
 
-## Installing and Updating Helm Charts
+### Installing and Updating Helm Charts
 
 To install the Helm charts:
 
@@ -156,7 +175,7 @@ And to update/upgrade to the latest chart versions is just:
 helm repo update
 ```
 
-## Installing and Upgrading Chart Values
+### Installing and Upgrading Chart Values
 
 Assuming a namespace `langflow` exists, install the chart values file named `values.yaml` the first time with:
 
@@ -177,7 +196,7 @@ deployment with:
 kubectl rollout restart deployment -n langflow langflow-runtime
 ```
 
-## Exposing Langflow service
+### Exposing Langflow service
 
 In a Kubernetes environment, backend services such as the Langflow API are not typically exposed (via an Ingress)
 to the outside world (i.e. your computer). However, for testing purposes you may wish to create a temporary 
