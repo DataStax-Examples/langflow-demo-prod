@@ -35,6 +35,11 @@ SOFTWARE.** -->
 </head>
 <body>
     <div>
+        <input type="text" id="hostUrlInput" placeholder="Enter new host URL" value="http://localhost:7860">
+        <button onclick="updateHostUrl()">Update Host URL</button>
+    </div>
+    
+    <div>
         <input type="text" id="labelInput" placeholder="Label for new session">
         <button onclick="addSession()">Add Session</button>
     </div>
@@ -83,6 +88,16 @@ SOFTWARE.** -->
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.5/dist/build/static/js/bundle.min.js"></script>
     <script>
+        function updateHostUrl() {
+            const newUrl = document.getElementById('hostUrlInput').value;
+            if (newUrl) { // Check if the URL is not empty
+                const chatComponents = document.querySelectorAll('langflow-chat');
+                chatComponents.forEach(chat => {
+                    chat.setAttribute('host_url', newUrl);
+                });
+            }
+        }
+
         let sessions = JSON.parse(localStorage.getItem('sessions')) || [{'label': 'initial', 'id': uuid.v4()}];
         localStorage.setItem('sessions', JSON.stringify(sessions)); // Initialize or re-save
     
@@ -159,6 +174,7 @@ SOFTWARE.** -->
     
         window.onload = function() {
             populateSessionTable();
+            updateHostUrl();
         };
     </script>
 </body>

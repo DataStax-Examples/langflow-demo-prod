@@ -133,7 +133,8 @@ From here you can simply click this button:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FDataStax-Examples%2Flangflow-demo-prod%2Ftree%2Fmain)
 
-You can find more extensive options and information about configuring the blueprint for things like scaling in the [Render documentation](https://docs.render.com/blueprint-spec).
+Note you'll need to use the Standard plan, as 512 MB of memory is insufficient for Langflow. You can find more extensive options 
+and information about configuring the blueprint for things like scaling in the [Render documentation](https://docs.render.com/blueprint-spec).
 
 ## Kubernetes (with Helm)
 
