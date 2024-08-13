@@ -23,6 +23,7 @@
 services:
   - type: web
     name: langflow
+    plan: standard
     runtime: docker
     dockerfilePath: ./Dockerfile
     repo: https://github.com/DataStax-Examples/langflow-demo-prod
