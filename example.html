@@ -27,64 +27,123 @@ SOFTWARE.** -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LangFlow Chat with Managed Sessions</title>
     <style>
-        .chat-container {margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;}
-        .chat-header    {font-size: 20px; color: #333; margin-bottom: 10px;}
-        table           {width: 100%; margin-top: 20px; border-collapse: collapse;}
-        th, td          {border: 1px solid #ccc; padding: 8px; text-align: left;}
-    </style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+    
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 5px 10px;
+        }
+    
+        .config-container input, .config-container button {
+            width: auto;
+            margin: 5px 5px;
+        }
+    
+        .chat-header {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+    
+        .chat-container {
+            flex: 1 1 auto; 
+            max-width: 330px;
+            margin: 10px;
+            padding: 10px; 
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: left;
+        }
+    
+        .chat-container-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+    
+        @media (max-width: 600px) {
+            .chat-container-row {
+                flex-direction: column;
+            }
+            .chat-container {
+                flex: 1 1 100%; 
+            }
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>    
 </head>
 <body>
-    <div>
-        <input type="text" id="hostUrlInput" placeholder="Enter new host URL" value="http://localhost:7860">
-        <button onclick="updateHostUrl()">Update Host URL</button>
+    <div class="container config-container">
+        <h2>Configuration Settings</h2>
+        <div>
+            <input type="text" id="hostUrlInput" placeholder="Enter new host URL" value="http://localhost:7860">
+            <button onclick="updateHostUrl()">Update Host URL</button>
+        </div>
+        
+        <div>
+            <input type="text" id="labelInput" placeholder="Label for new session">
+            <button onclick="addSession()">Add Session</button>
+        </div>
+    
+        <table id="sessionTable">
+            <tr>
+                <th>Label</th>
+                <th>Session ID</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="container">        
+        <h2>Chat Sessions</h2>
+        <div class="chat-container-row">
+            <div class="chat-container">
+                <div class="chat-header">Pirate Prompt</div>
+                Session: <select id="pirateChatSelector" onchange="updateSession('langflowPiratePrompt', this.value)"></select>
+                <langflow-chat
+                    id="langflowPiratePrompt"
+                    window_title="Pirate Prompt"
+                    flow_id="pirate-prompt"
+                    host_url="http://localhost:7860"
+                ></langflow-chat>
+            </div>
+        
+            <div class="chat-container">
+                <div class="chat-header">Basic Memory Chat</div>
+                Session: <select id="basicMemoryChatSelector" onchange="updateSession('langflowBasicMemoryChat', this.value)"></select>
+                <langflow-chat
+                    id="langflowBasicMemoryChat"
+                    window_title="Basic Memory Chat"
+                    flow_id="basic-memory-chatbot"
+                    host_url="http://localhost:7860"
+                ></langflow-chat>
+            </div>
+        
+            <div class="chat-container">
+                <div class="chat-header">Astra Memory Chat</div>
+                Session: <select id="astraMemoryChatSelector" onchange="updateSession('langflowAstraMemoryChat', this.value)"></select>
+                <langflow-chat
+                    id="langflowAstraMemoryChat"
+                    window_title="Astra Memory Chat"
+                    flow_id="astra-memory-chatbot"
+                    host_url="http://localhost:7860"
+                ></langflow-chat>
+            </div>    
+        </div>
     </div>
     
-    <div>
-        <input type="text" id="labelInput" placeholder="Label for new session">
-        <button onclick="addSession()">Add Session</button>
-    </div>
-
-    <table id="sessionTable">
-        <tr>
-            <th>Label</th>
-            <th>Session ID</th>
-            <th>Actions</th>
-        </tr>
-    </table>
-
-    <div class="chat-container">
-        <div class="chat-header">Pirate Prompt</div>
-        Session: <select id="pirateChatSelector" onchange="updateSession('langflowPiratePrompt', this.value)"></select>
-        <langflow-chat
-            id="langflowPiratePrompt"
-            window_title="Pirate Prompt"
-            flow_id="pirate-prompt"
-            host_url="http://localhost:7860"
-        ></langflow-chat>
-    </div>
-
-    <div class="chat-container">
-        <div class="chat-header">Basic Memory Chat</div>
-        Session: <select id="basicMemoryChatSelector" onchange="updateSession('langflowBasicMemoryChat', this.value)"></select>
-        <langflow-chat
-            id="langflowBasicMemoryChat"
-            window_title="Basic Memory Chat"
-            flow_id="basic-memory-chatbot"
-            host_url="http://localhost:7860"
-        ></langflow-chat>
-    </div>
-
-    <div class="chat-container">
-        <div class="chat-header">Astra Memory Chat</div>
-        Session: <select id="astraMemoryChatSelector" onchange="updateSession('langflowAstraMemoryChat', this.value)"></select>
-        <langflow-chat
-            id="langflowAstraMemoryChat"
-            window_title="Astra Memory Chat"
-            flow_id="astra-memory-chatbot"
-            host_url="http://localhost:7860"
-        ></langflow-chat>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.5/dist/build/static/js/bundle.min.js"></script>
     <script>
