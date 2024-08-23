@@ -143,13 +143,29 @@ SOFTWARE.** -->
             </div>    
         </div>
     </div>
-    
+
+    <div class="container">
+        <h2>Document Summary</h2>
+        <input type="file" id="fileInput" accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, application/rtf, text/markdown, text/html" />
+        <select id="summaryEndpoint">
+            <option value="research-paper-digest">Research Paper Digest</option>
+        </select>
+        <button onclick="loadAndDigestFile()">Summarize Document</button>
+        <div id="summaryOutput"></div>
+    </div>
+        
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/logspace-ai/langflow-embedded-chat@v1.0.5/dist/build/static/js/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <script>
+        let currentHostUrl = localStorage.getItem('hostUrl') || document.getElementById('hostUrlInput').value; // Retrieve from localStorage or use default
+
         function updateHostUrl() {
             const newUrl = document.getElementById('hostUrlInput').value;
             if (newUrl) { // Check if the URL is not empty
+                currentHostUrl = newUrl;
+                localStorage.setItem('hostUrl', newUrl); // Save the new URL in localStorage
                 const chatComponents = document.querySelectorAll('langflow-chat');
                 chatComponents.forEach(chat => {
                     chat.setAttribute('host_url', newUrl);
@@ -158,7 +174,7 @@ SOFTWARE.** -->
         }
 
         let sessions = JSON.parse(localStorage.getItem('sessions')) || [{'label': 'initial', 'id': uuid.v4()}];
-        localStorage.setItem('sessions', JSON.stringify(sessions)); // Initialize or re-save
+        localStorage.setItem('sessions', JSON.stringify(sessions)); 
     
         function populateSessionTable() {
             const table = document.getElementById('sessionTable');
@@ -230,11 +246,72 @@ SOFTWARE.** -->
             updateSession('langflowBasicMemoryChat', sessionId);
             updateSession('langflowAstraMemoryChat', sessionId);
         }
-    
+
         window.onload = function() {
+            document.getElementById('hostUrlInput').value = currentHostUrl; 
             populateSessionTable();
             updateHostUrl();
         };
+    
+        function loadAndDigestFile() {
+            const file = document.getElementById('fileInput').files[0];
+            const endpoint = document.getElementById('summaryEndpoint').value;
+
+            // Clear previous content and show loading message immediately
+            const summaryOutputDiv = document.getElementById('summaryOutput');
+            summaryOutputDiv.innerHTML = '<div style="margin-top: 20px;">Processing...</div>';
+
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function () {
+                    const base64Content = reader.result.split(',')[1]; 
+                    const filename = file.name; 
+                    sendFileToAPI(endpoint, base64Content, filename);
+                };
+                reader.onerror = function (error) {
+                    console.error('Error reading file: ', error);
+                    summaryOutputDiv.innerHTML = `<p>Error reading file: ${error.message}</p>`; // Display error message in the summary output
+                };
+            } else {
+                alert('Please select a file before clicking "Summarize Document".');
+            }
+        }
+
+        function sendFileToAPI(endpoint, base64Content, filename) {
+            const apiURL = `${currentHostUrl}/api/v1/run/${endpoint}?stream=false`;
+            fetch(apiURL, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    output_type: "chat",
+                    input_type: "chat",
+                    "tweaks": {
+                        "TextInput-eYtbq": {"input_value": base64Content },
+                        "TextInput-AlrlI": {"input_value": filename }
+                    }
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                // console.log("API Data:", data);
+                // Extract the markdown text from the deeply nested structure            
+                var markdownText = data.outputs[0].outputs[0].results.text.text; 
+                const renderedHTML = marked.parse(markdownText || ''); 
+                document.getElementById('summaryOutput').innerHTML = DOMPurify.sanitize(renderedHTML);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('summaryOutput').innerHTML = `<p>An error occurred while processing your document: ${error}</p>`;
+                document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator on error
+            });
+        }
+
     </script>
 </body>
 </html>
