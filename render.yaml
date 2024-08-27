@@ -36,7 +36,7 @@ services:
       - key: LANGFLOW_HOST
         value: 0.0.0.0
       - key: LANGFLOW_PORT
-        value: 10000
+        value: 10000 # This is the default port used by Render
       - key: LANGFLOW_LOG_LEVEL
         value: INFO
       - fromGroup: langflow-demo-flow-secrets
